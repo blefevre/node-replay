@@ -197,7 +197,7 @@ module.exports = class Catalog {
     const filename = `${pathname}/${uid}`;
     try {
       const file = File.createWriteStream(tmpfile, { encoding: 'utf-8' });
-      file.write(`${request.method.toUpperCase()} ${request.url.path || '/'}\n`);
+      file.write(`${request.method.toUpperCase()} ${request.path || request.url.path || '/'}\n`);
       writeHeaders(file, request.headers, requestHeaders);
       if (request.body) {
         let body = '';

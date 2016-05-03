@@ -35,7 +35,7 @@ module.exports = class Matcher {
       const url = URL.parse(request.url);
       this.hostname = url.hostname;
       this.port     = url.port;
-      this.path     = url.path;
+      this.path     = request.path || url.path;
     }
 
     this.method   = (request.method && request.method.toUpperCase()) || 'GET';
@@ -78,16 +78,16 @@ module.exports = class Matcher {
 
   // Quick and effective matching.
   match(request) {
-    const { url, method, headers, body } = request;
+    const { url, path, method, headers, body } = request;
     if (this.hostname && this.hostname !== url.hostname)
       return false;
     if (this.regexp) {
-      if (!this.regexp.test(url.path))
+      if (!this.regexp.test(path || url.path))
         return false;
     } else {
       if (this.port && this.port !== url.port)
         return false;
-      if (this.path && this.path !== url.path)
+      if (this.path && (this.path !== path && this.path !== url.path))
         return false;
     }
     if (this.method !== method)
