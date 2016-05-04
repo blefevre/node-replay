@@ -19,7 +19,7 @@
 const assert         = require('assert');
 const URL            = require('url');
 const jsStringEscape = require('js-string-escape');
-
+const deepEqual = require('deep-equal')
 // Simple implementation of a matcher.
 //
 // To create a matcher from request/response mapping use `fromMapping`.
@@ -87,8 +87,13 @@ module.exports = class Matcher {
     } else {
       if (this.port && this.port !== url.port)
         return false;
-      if (this.path && (this.path !== path && this.path !== url.path))
+      if (path) {
+        if(this.path !== path)
+          return false;
+      }
+      else if (this.path && this.path !== url.path) 
         return false;
+
     }
     if (this.method !== method)
       return false;
@@ -97,14 +102,10 @@ module.exports = class Matcher {
       if (this.headers[name] !== headers[name])
         return false;
     }
-    if (body) {
-      let data = '';
-      for (let chunks of body)
-        data += chunks[0];
-      data = jsStringEscape(data);
-      if (this.body && this.body !== data)
-        return false;
+    if (body && !deepEqual(this.body, body[0][0])) {
+      return false;
     }
+
     return true;
   }
 
@@ -125,14 +126,14 @@ module.exports = class Matcher {
     else if (mapping.request.url instanceof RegExp)
       matchingRequest = {
         host:     host,
-        regexp:   mapping.request.url,
+        regexp:   mapping.request.path || mapping.request.url,
         method:   mapping.request.method,
         headers:  mapping.request.headers,
         body:     mapping.request.body
       };
     else
       matchingRequest = {
-        url:      URL.resolve(`http://${host}`, mapping.request.url),
+        url:      URL.resolve(`http://${host}`, mapping.request.path || mapping.request.url),
         method:   mapping.request.method,
         headers:  mapping.request.headers,
         body:     mapping.request.body

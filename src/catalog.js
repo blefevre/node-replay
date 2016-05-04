@@ -203,12 +203,12 @@ module.exports = class Catalog {
         let body = '';
         for (let chunks of request.body)
           body += chunks[0];
-        writeHeaders(file, { body: jsStringEscape(body) });
+        writeHeaders(file, { body });
       }
       file.write('\n');
       // Response part
       file.write(`HTTP/${response.version || '1.1'} ${response.statusCode || 200} ${response.statusMessage}\n`);
-      writeHeaders(file, response.headers);
+      writeHeaders(file, response.headers, requestHeaders);
       file.write('\n');
       for (let part of response.body)
         file.write(part[0], part[1]);
