@@ -113,9 +113,10 @@ class Replay extends EventEmitter {
   }
 
   // True if this host is on the dropped list
-  isDropped(host) {
+  isDropped(url) {
+    var host = url.hostname
     const domain = host.replace(/^[^.]+/, '*');
-    return !!(this._dropped.has(host) || this._dropped.has(domain) || this._dropped.has(`*.${host}`));
+    return !!(this._dropped.has(host) || this._dropped.has(domain) || this._dropped.has(`*.${host}`) || this._dropped.has(url.host));
   }
 
   // Treats this host as localhost: requests are routed directly to 127.0.0.1, no
@@ -161,7 +162,7 @@ const replay = new Replay(process.env.REPLAY || DEFAULT_MODE);
 
 function passWhenBloodyOrCheat(request) {
   return replay.isPassThrough(request.url.hostname) ||
-         (replay.mode === 'cheat' && !replay.isDropped(request.url.hostname));
+         (replay.mode === 'cheat' && !replay.isDropped(request.url));
 }
 
 function passToLocalhost(request) {

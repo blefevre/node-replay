@@ -29,7 +29,7 @@ module.exports = function recorded(settings) {
     }
 
     // Do not record this host.
-    if (settings.isDropped(request.url.hostname)) {
+    if (settings.isDropped(request.url)) {
       const refused = new Error('Error: connect ECONNREFUSED');
       refused.code = refused.errno = 'ECONNREFUSED';
       refused.syscall = 'connect';
